@@ -6,18 +6,11 @@ let blockchain = require('./blockchainSchema').blockchainSchema;
 const app = express();
 app.use(express.json());
 
-let nodeAddress = uuid.v4().replaceAll('-',''); // address of node on PORT
 
 const PORT = 8000;
 
 app.get("/mine_block", async (req,res) =>{
-    let minerReward = {
-        sender: nodeAddress,
-        receiver: 'Ritvik',
-        amount: 10
-    }
-    minerReward = blockchain.addTransaction(minerReward);
-    let response = blockchain.createBlock();
+    let response = await blockchain.createBlock();
     if(response){
         if(response.status){
             res.status(200).send(response);
@@ -71,7 +64,10 @@ app.post("/add_transaction", (req, res) =>{
     }
     let transaction = blockchain.addTransaction(req.body);
     res.status(201).send(transaction);
-    
+})
+
+app.delete("/clear_mempool", (req, res) =>{
+    blockchain.clearTransactions();
 })
 
 const server = app.listen(PORT, '127.0.0.1', (err)=>{
